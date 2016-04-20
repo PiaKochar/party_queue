@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>PARTY QUEUEUEUE</h1>
+    {% for album in albums %}
+    <p>
+      {{ user.nickname }} calls for album: <b>{{ album.name }}</b>
+    </p>
+    {% endfor %}
+{% endblock %}

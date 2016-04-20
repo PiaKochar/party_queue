@@ -1,0 +1,15 @@
+<html>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}" 
+          href="https://fonts.googleapis.com/css?family=Montserrat">>
+  <head>
+    {% if title %}
+    <title>{{ title }} - microblog</title>
+    {% else %}
+    <title>microblog</title>
+    {% endif %}
+  </head>
+  <body>
+    <div class = "nav"> Microblog:</a> <a href="/index">Home</a></div>
+    {% block content %}{% endblock %}
+  </body>
+</html>
