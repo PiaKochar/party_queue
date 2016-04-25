@@ -11,6 +11,28 @@ p 				{ padding-left: 10px; color: white;}
 .nav            { padding-left: 10px; color: white;}
 .bodyclass      { background-size: cover; background-image: url("spotify_logo.svg"); }
 .header         { font-size: 3em;}
+.searchbar      { padding-left: 10px; padding-top: 10px; }
+.searchbutton   { background:url("SearchButton.svg"); 
+				  font-family: 'Montserrat' ; 
+				  cursor:pointer;
+                  width: 60;
+                  height: 30;
+                  border: none;}
+.addbutton      { background:url("AddButton.svg");
+				  font-family: 'Montserrat' ; 
+				  cursor:pointer;
+                  width: 120;
+                  height: 30;
+                  border: none;}
+.textbox 		{ border: 1px solid #848484; 
+                  -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px; 
+    			  border-radius: 30px; 
+    			  outline:0; 
+    			  height:25px; 
+    			  width: 275px; 
+    			  padding-left:10px; 
+    			  padding-right:10px; } 
 
 @media only screen and (min-width: 769px) {
 .header         { font-size: 5em;}
