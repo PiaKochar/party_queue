@@ -8,6 +8,7 @@
     </form>
     </div>
     {% for track in tracks %}
+    <iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:5Z7ygHQo02SUrFmcgpwsKW,1x6ACsKV4UdWS2FMuPFUiT,4bi73jCM02fMpkI11Lqmfe" frameborder="0" allowtransparency="true"></iframe>
     <p>
         <input type = "submit" name="add" class="addbutton" value="Add to Party"> 
         <b>Song: </b> <a>{{track['name']}}</a> <b> Artist: </b> <a> {{track['artists'][0]['name']}}</a>

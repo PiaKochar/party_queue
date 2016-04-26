@@ -3,12 +3,8 @@ from flask import request
 from app import app
 import spotipy
 import spotipy.util as util
-# import spotify
+import spotify 
 
-# config = spotify.Config()
-# config.user_agent = 'My awesome Spotify client'
-# config.tracefile = b'/tmp/libspotify-trace.log'
-# session = spotify.Session(config)
 
 @app.route('/')
 @app.route('/index')
@@ -17,6 +13,7 @@ def index():
     # player = Player(session)
     # player.load(track)
     # player.play
+    # session = spotify.Session()
     birdy_uri = 'spotify:artist:2WX2uTcsvV5OnS0inACecP'
     spotify = spotipy.Spotify()
 
