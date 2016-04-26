@@ -1,5 +1,5 @@
-from flask import render_template
-from flask import request
+from flask import render_template, request, flash
+# from flask import request,
 from app import app
 import spotipy
 import spotipy.util as util
@@ -13,29 +13,40 @@ import spotipy.util as util
 @app.route('/')
 @app.route('/index')
 def index():
-    # track = session.get_track('spotify:track:1ToxbPCzdozcOPAe0Pyuyk')
-    # player = Player(session)
-    # player.load(track)
-    # player.play
-    birdy_uri = 'spotify:artist:2WX2uTcsvV5OnS0inACecP'
-    spotify = spotipy.Spotify()
+  birdy_uri = 'spotify:artist:2WX2uTcsvV5OnS0inACecP'
+  spotify = spotipy.Spotify()
 
-    results = spotify.artist_albums(birdy_uri, album_type='album')
-    albums = results['items']
-    while results['next']:
-        results = spotify.next(results)
-        albums.extend(results['items'])
-    user = {'nickname': 'Miguel'}
-    return render_template("index.html",
-                           title='Home',
-                           user=user,
-                           albums=albums)
+  results = spotify.artist_albums(birdy_uri, album_type='album')
+  albums = results['items']
+  while results['next']:
+      results = spotify.next(results)
+      albums.extend(results['items'])
+  user = {'nickname': 'Miguel'}
+  return render_template("index.html",
+                          title='Home',
+                          user=user,
+                          albums=albums)
+
+# @app.route('/', methods=['POST'])
+# def my_form_post():
+#   text = request.form['text']
+#   processed_text = text.lower()
+#   return results(processed_text)
 
 @app.route('/', methods=['POST'])
 def my_form_post():
-  text = request.form['text']
-  processed_text = text.lower()
-  return results(processed_text)
+  print(request.form)
+  if 'addbutton' in request.form:
+    if request.form['addbutton'] == 'Add to Party':
+      return results('hello')
+  else:
+    text = request.form['text']
+    processed_text = text.lower()
+    return results(processed_text)
+
+# @app.route('/', methods=['POST'])
+# def add_post():
+#   return add_song(queue)
 
 @app.route('/results')
 def results(search):
@@ -60,4 +71,6 @@ def results(search):
                           title='Home',
                           tracks=tracks)
 
+# @app.route('/add')
+# def add_song(queue):
 
