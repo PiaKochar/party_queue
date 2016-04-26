@@ -36,21 +36,25 @@ def my_form_post():
 
 @app.route('/results')
 def results(search):
+  # if request.form['submit'] == 'Add to Party':
+  #     song = Song(track['name'], queue name) # how to get this data?
+  #     db.session.add(song)
+  #     db.session.commit()
   spotify = spotipy.Spotify()
   results = spotify.search(q='track:' + search, type='track')
   items = results['tracks']['items']
   tracks = []
   for i in range(10):
     track = items[i]
-    # for key in track:
-    #   print "key: %s , value: %s" % (key, track[key])
-    # tracks.append(track['name'] + " " + track['artists'][0]['name'] + \
-    #  " " + track['uri'])
+      # for key in track:
+      #   print "key: %s , value: %s" % (key, track[key])
+      # tracks.append(track['name'] + " " + track['artists'][0]['name'] + \
+      #  " " + track['uri'])
     tracks.append(track)
 
 
   return render_template("results.html",
-                           title='Home',
-                           tracks=tracks)
+                          title='Home',
+                          tracks=tracks)
 
 
