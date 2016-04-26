@@ -8,9 +8,11 @@
     </form>
     </div>
     {% for track in tracks %}
-    <p>
-        <input type = "submit" name="add" class="addbutton" value="Add to Party"> 
-        <b>Song: </b> <a>{{track['name']}}</a> <b> Artist: </b> <a> {{track['artists'][0]['name']}}</a>
-    </p>
+    <!-- <form action="." method="POST"> -->
+        <p>
+            <input type ="submit" name="add" class="addbutton" value="Add to Party">
+            <b>Song: </b> <a>{{track['name']}}</a> <b> Artist: </b> <a> {{track['artists'][0]['name']}}</a>
+        </p>
+    <!-- </form> -->
     {% endfor %}
 {% endblock %}
