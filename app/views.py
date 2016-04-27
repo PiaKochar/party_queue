@@ -109,6 +109,7 @@ def change_ordering_upvote(song_uri):
         while (song.num_votes > prev_song.num_votes):
             song.rank -= 1
             prev_song.rank += 1
+            sp.user_playlist_reorder_tracks(username, song.playlist,song.rank,song.rank-1,1)
             prev_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank - 1).first()
             if not prev_song:
                 break
@@ -122,6 +123,7 @@ def change_ordering_downvote(song_uri):
         while (song.num_votes < next_song.num_votes):
             song.rank += 1
             next_song.rank -= 1
+            sp.user_playlist_reorder_tracks(username, song.playlist,song.rank,song.rank+2,1)
             next_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank + 1).first()
             if not next_song:
                 break
