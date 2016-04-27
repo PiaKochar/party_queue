@@ -1,12 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
     <h1 class = "header">PARTY QUEUEUEUE</h1>
-    <p>Hi {{username}}</p>
+    <div class ="main-body">
+    <div class="default-center">
+    <h2>Hi {{username}}, which party would you like to join?</h2>
     {% for playlist in playlists %} 
     <form action="." method="POST">
+    <p>
         <font color="white">{{playlist['name']}}</font>
         <input type="submit" name="up" class="searchbutton" value="Join">
         <input type ="text" name="uri" class="invis" value={{playlist['uri']}}>
+    </p>
+    <div class="buffer"></div>
     </form>
     {% endfor %}
+    <font color="black">secret</font>>
+    </div>
+    </div>
 {% endblock %}

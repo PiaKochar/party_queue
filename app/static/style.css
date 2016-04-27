@@ -6,12 +6,12 @@ body            { font-family: 'Montserrat', sans-serif; background: black; }
 a, h1, h2       { color: white; font-family: 'Montserrat', sans-serif; margin: 0;}
 h1, h2          { margin: 0; }
 h1              { font-size: 5em; padding-bottom: 20px; border-bottom: 5px solid #eee; text-align: center; }
-h2              { font-size: 1.7em; text-align: center; padding-top: 10px;}
+h2              { font-size: 1.7em; text-align: center; padding: 10px;}
 p 				      { padding-left: 10px; color: white; display:block;}
 .nav            { padding-left: 10px; color: white;}
 .bodyclass      { background-size: cover; background-image: url("spotify_logo.svg"); }
 .header         { font-size: 3em;}
-.main-body      { padding-left: 100px; padding-top: 10px;}
+.main-body      { padding-left: 100px; padding-top: 25px;}
 .searchbar      { padding-left: 10px; padding-top: 10px; }
 .searchbutton   { background-color: black;
                   -webkit-border-radius: 30px; 
@@ -19,6 +19,15 @@ p 				      { padding-left: 10px; color: white; display:block;}
                   color: #1ed760;
 				          font-family: 'Montserrat' ; 
 				          cursor:pointer;
+                  width: 60;
+                  height: 30;
+                  border: none;}                  
+.greenbutton    { background-color: 1ed760;
+                  -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px; 
+                  color: black;
+                  font-family: 'Montserrat' ; 
+                  cursor:pointer;
                   width: 60;
                   height: 30;
                   border: none;}
@@ -112,6 +121,14 @@ p 				      { padding-left: 10px; color: white; display:block;}
 .buffer2        { float: right;
                   min-width: 10px;
                   visibility: hidden;}
+.default-center { -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px;
+                  background-color: black;
+                  max-width: 40vh;
+                  text-align: center;
+                  padding-top: 10px;
+                  margin: 0 auto; 
+                }
 
 ::-webkit-scrollbar {
     width: 0px;
