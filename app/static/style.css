@@ -11,7 +11,7 @@ p 				      { padding-left: 10px; color: white; display:block;}
 .nav            { padding-left: 10px; color: white;}
 .bodyclass      { background-size: cover; background-image: url("spotify_logo.svg"); }
 .header         { font-size: 3em;}
-.main-body      { padding-left: 100px; padding-top: 25px;}
+.main-body      { padding-left: 100px; padding-top: 25px; min-height: 120vh;}
 .searchbar      { padding-left: 10px; padding-top: 10px; }
 .searchbutton   { background-color: black;
                   -webkit-border-radius: 30px; 
@@ -98,15 +98,15 @@ p 				      { padding-left: 10px; color: white; display:block;}
                   -moz-border-radius: 30px;
                   background-color: black;
                   min-width: 60vh;
-                  max-height: 50vh;
+                  max-height: 52vh;
                   overflow: scroll;
                 }
 .scroll_queue   { float: left;
                   -webkit-border-radius: 30px; 
                   -moz-border-radius: 30px;
                   background-color: black;
-                  min-width: 50vh;
-                  max-height: 50vh;
+                  min-width: 52vh;
+                  max-height: 52vh;
                   overflow: scroll;
                 }
 .play_button    {
