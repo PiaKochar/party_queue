@@ -5,7 +5,7 @@ import spotipy.util as util
 
 username = '124028238'
 scope = 'playlist-modify-public'
-token = 'BQDgsh7PDQGsiKzmwvC4ienDKcYfwq2nz47SNELwb5U6RIXzUgZcWFWhD1Q8uLlOjGDvmhSZb4ovYVzcYkhmKVLCVmPcf9_t5gFH6EABhC50C8XOEP-7dopqMtB0YEBD80sobh8Cbj_ofdkEfDW5WoW6DO2lmwRQeoiErYncYgC2qnXYiypF271pTg'
+token = 'BQDfL1WmAaw3C66hV5lZ1nDH0Sj5slTf9k8hYoI0C8UNw1jEWP_OYAGz1RxFy7EWj_MBTOh-lLTIV6j-_U0_Lrl3xdf50FYUv25CbD86_BC7FlYZ5ML98MYzZvEUaX32SUNT459o8u4rsodidgrPGU35xE2Fr0CUHw2vRKue6YnvHsFxf_VaBQNSMg'
 sp = spotipy.Spotify(auth=token)
 user = sp.user(username)
 
@@ -58,10 +58,12 @@ class Song(db.Model):
 
     def upvote(self):
         self.num_votes += 1
+        print '<Votes: {}>'.format(self.num_votes)
         db.session.commit()
 
     def downvote(self):
         self.num_votes -= 1
+        print '<Votes: {}>'.format(self.num_votes)
         db.session.commit()
 
     def set_rank(self, rank):
@@ -104,31 +106,39 @@ def is_logged_in():
 
 def change_ordering_upvote(song_uri):
     song = Song.query.filter(Song.uri == song_uri).first()
+    print song.rank
     prev_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank - 1).first()
     if prev_song:
+        print " UGHGHH" + str(song.num_votes)
+        print prev_song.num_votes
         while (song.num_votes > prev_song.num_votes):
+            print "UGH"
+            if(song.rank != 0):
+                sp.user_playlist_reorder_tracks(username, song.playlist, song.rank, song.rank-1, 1)
             song.rank -= 1
             prev_song.rank += 1
-            sp.user_playlist_reorder_tracks(username, song.playlist,song.rank,song.rank-1,1)
+            db.session.commit()
             prev_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank - 1).first()
             if not prev_song:
                 break
     db.session.commit()
-    # TODO: change ordering spotify
 
 def change_ordering_downvote(song_uri):
     song = Song.query.filter(Song.uri == song_uri).first()
     next_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank + 1).first()
     if next_song:
         while (song.num_votes < next_song.num_votes):
+            curr_playlist = Playlist.query.filter(Playlist.uri == session['playlist']).first()
+            print curr_playlist.num_songs
+            if song.rank < curr_playlist.num_songs - 1:
+                sp.user_playlist_reorder_tracks(username, song.playlist, song.rank,song.rank + 1, 1)
             song.rank += 1
             next_song.rank -= 1
-            sp.user_playlist_reorder_tracks(username, song.playlist,song.rank,song.rank+2,1)
+            db.session.commit()
             next_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank + 1).first()
             if not next_song:
                 break
     db.session.commit()
-    # TODO: change ordering spotify
 
 def vote(song_uri, user_id, upvote):
     user_vote = Voted(song_uri, user_id, upvote)
@@ -258,7 +268,9 @@ def my_form_post():
     playlist = sp.user_playlist_tracks(username, session['playlist'])
     q_tracks = []
     for track in playlist['items']:
-      q_tracks.append(track['track'])
+        song = Song.query.filter(Song.uri == track['track']['uri'][14:]).first()
+        print song.num_votes
+        q_tracks.append(track['track'])
     text = request.form['text']
     processed_text = text.lower()
     return results(processed_text, q_tracks)
