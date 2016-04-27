@@ -7,25 +7,15 @@
         <input type="submit" name="my-form" class="searchbutton" value="Search">
     </form>
     </div>
-    <iframe id="player" type="text/html" width="640" height="390"
-    src="http://www.youtube.com/embed/M7lc1UVf-VE?enablejsapi=1&origin=http://example.com"
-    frameborder="0"></iframe>
+    <iframe src="https://embed.spotify.com/?uri=spotify:user:124028238:playlist:2b0pwZQzfNQBTufDZA86Az" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
     {% for track in tracks %}
-<<<<<<< HEAD
-    <iframe src="https://embed.spotify.com/?uri=spotify:trackset:PREFEREDTITLE:5Z7ygHQo02SUrFmcgpwsKW,1x6ACsKV4UdWS2FMuPFUiT,4bi73jCM02fMpkI11Lqmfe" frameborder="0" allowtransparency="true"></iframe>
-    <p>
-        <input type = "submit" name="add" class="addbutton" value="Add to Party"> 
-        <b>Song: </b> <a>{{track['name']}}</a> <b> Artist: </b> <a> {{track['artists'][0]['name']}}</a>
-    </p>
-=======
     <form action="." method="POST">
         <p>
-            <input type ="submit" name="addbutton" class="addbutton" value="Add to Party" data-uri="{{track['uri']}}">
-
+            <input type ="submit" name="addbutton" class="addbutton" value="Add to Party">
+            <input type ="text" name="uri" class="invis" value={{track['uri']}}>
             <b>Song: </b> <a>{{track['name']}}</a> <b> Artist: </b> <a> {{track['artists'][0]['name']}}</a>
         </p>
     </form>
->>>>>>> dbaea5177d5de1f800668ee1d40ccb3ca28e1a15
     {% endfor %}
     <script type="text/javascript">
         function play() {

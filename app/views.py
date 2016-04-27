@@ -9,6 +9,14 @@ app = Flask(__name__)
 app.config.from_pyfile('db.cfg')
 db = SQLAlchemy(app)
 
+# SPOTIFY USER STUFF#
+# username = '124028238'
+# scope = 'playlist-modify-public'
+# # token = 'BQDi0tF5KYHzgUDTk3F-9fCIO7KHdHioIM0hTC5CpASkpXPyZrNT2UEaUu1K1dqt9qfwWhaFDtfvoBBQiVYG6BnbMyfB3_UH_O9St6mfgH3PNx6fHZdhUbenhFlvPbNKLUNoYVV0qZjAjb040du4Va6r07_-jTFpcwPLoUl6mk46a2M7tutwdlJSjw'
+# sp = spotipy.Spotify(auth=token)
+# user = sp.user(username)
+# playlists = sp.user_playlists(username)
+
 # ------------Models --------------------------
 # Queue model for database
 class Queue(db.Model):
@@ -120,6 +128,17 @@ def my_form_post():
   print(request.form)
   if 'addbutton' in request.form:
     if request.form['addbutton'] == 'Add to Party':
+      username = '124028238'
+      scope = 'playlist-modify-public'
+      token = 'BQDJwFOCnl8aG0K8TmSJKAbCTfD2uE0I5XdOzapSaV1wfySiVVVfzfakcnRDgktHFsjdWng6sXoTkP-tidrBX4yh00jcsr5bYMiLhbwwvW6QIEM7wnXsvGQEWSBEmQ5w10AO-jEvQMcjC3GmRevcj0YF_aQwFRb5glSR7WC_KSvAxcWwMIkR9wKlBQ'
+      sp = spotipy.Spotify(auth=token)
+      user = sp.user(username)
+      track_ids = [request.form['uri'][14:]]
+      sp.user_playlist_add_tracks(username, '2b0pwZQzfNQBTufDZA86Az', track_ids)
+      # sp.user_playlist_create(username, 'TEST')
+      playlist = sp.user_playlist_tracks(username,'2b0pwZQzfNQBTufDZA86Az')
+      for track in playlist['items']:
+        print(track['track']['name'])
       return results('hello')
   else:
     text = request.form['text']
@@ -156,5 +175,5 @@ def results(search):
                           tracks=tracks)
 
 if __name__ == '__main__':
-    #db.create_all()
+    db.create_all()
     app.run(debug=True)
