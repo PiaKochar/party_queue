@@ -6,34 +6,116 @@ body            { font-family: 'Montserrat', sans-serif; background: black; }
 a, h1, h2       { color: white; font-family: 'Montserrat', sans-serif; margin: 0;}
 h1, h2          { margin: 0; }
 h1              { font-size: 5em; padding-bottom: 20px; border-bottom: 5px solid #eee; text-align: center; }
-h2              { font-size: 1.2em; }
-p 				{ padding-left: 10px; color: white;}
+h2              { font-size: 1.7em; text-align: center; padding-top: 10px;}
+p 				      { padding-left: 10px; color: white; display:block;}
 .nav            { padding-left: 10px; color: white;}
 .bodyclass      { background-size: cover; background-image: url("spotify_logo.svg"); }
 .header         { font-size: 3em;}
+.main-body      { padding-left: 100px; padding-top: 10px;}
 .searchbar      { padding-left: 10px; padding-top: 10px; }
-.searchbutton   { background:url("SearchButton.svg"); 
-				  font-family: 'Montserrat' ; 
-				  cursor:pointer;
+.searchbutton   { background-color: black;
+                  -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px; 
+                  color: #1ed760;
+				          font-family: 'Montserrat' ; 
+				          cursor:pointer;
                   width: 60;
                   height: 30;
                   border: none;}
-.addbutton      { background:url("AddButton.svg");
+.addbutton      { float:left;
+                  clear: both;
+                  background-color: #1ed760;
+                  -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px; 
+                  color: black;
 				          font-family: 'Montserrat' ; 
 				          cursor:pointer;
                   width: 120;
                   height: 30;
                   border: none;}
-.textbox 		{ border: 1px solid #848484; 
+.textbox 		    { border: 1px solid #848484; 
                   -webkit-border-radius: 30px; 
                   -moz-border-radius: 30px; 
-    			  border-radius: 30px; 
-    			  outline:0; 
-    			  height:25px; 
-    			  width: 275px; 
-    			  padding-left:10px; 
-    			  padding-right:10px; } 
+    			        border-radius: 30px; 
+    			        outline:0; 
+    			        height:25px; 
+    			        width: 275px; 
+    			        padding-left:10px; 
+    			        padding-right:10px; } 
+.down-button    { background-color: #1ed760;
+                  -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px; 
+                  color: black;
+                  font-family: 'Montserrat' ; 
+                  cursor:pointer;
+                  width: 60;
+                  height: 30;
+                  border: none;
+                  float:left;
+                  clear:both;}
+.up-button      { background-color: #1ed760;
+                  -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px; 
+                  color: black;
+                  font-family: 'Montserrat' ; 
+                  cursor:pointer;
+                  width: 60;
+                  height:30;
+                  border: none;
+                  float: left;
+                  padding-right: 10px;
+                }
+.search-track    { float: left;
+                  color: white;
+                  min-width: 270px;
+                  max-width: 270px;
+                  overflow-x: scroll;
+                  padding-left: 10px;
+                  text-align: center;
+                }
+.queue-track    { float: left;
+                  color: white;
+                  min-width: 200px;
+                  max-width: 200px;
+                  overflow-x: scroll;
+                  padding-left: 20px;
+                  padding-right: 20px;
+                  text-align: center;
+                }
+
 .invis          { display:none; }
+.search_results { float: left; 
+                  -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px;
+                  background-color: black;
+                  min-width: 60vh;
+                  max-height: 50vh;
+                  overflow: scroll;
+                }
+.scroll_queue   { float: left;
+                  -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px;
+                  background-color: black;
+                  min-width: 50vh;
+                  max-height: 50vh;
+                  overflow: scroll;
+                }
+.play_button    {
+                  float: left;
+                  max-width: 50vh;
+                }
+.buffer         {
+                  min-width: 10px;
+                  visibility: hidden;
+                  float: left;
+                }
+.buffer2        { float: right;
+                  min-width: 10px;
+                  visibility: hidden;}
+
+::-webkit-scrollbar {
+    width: 0px;
+}
 
 @media only screen and (min-width: 769px) {
 .header         { font-size: 5em;}

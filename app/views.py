@@ -56,6 +56,18 @@ class Song(db.Model):
 
     def __repr__(self):
         return '<Song: {}, Playlist: {}, Order: {}, Votes: {}>'.format(self.name, self.playlist, self.rank, self.num_votes)
+        
+    def upvote(self):
+        self.num_votes += 1
+        db.session.commit()
+
+    def downvote(self):
+        self.num_votes -= 1
+        db.session.commit()
+
+    def set_rank(self, rank):
+        self.rank = rank
+        db.session.commit()
 
 
 # Voted model for database
