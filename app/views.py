@@ -1,5 +1,6 @@
 from flask import render_template, request, flash, session, redirect, url_for
 from app import app
+from app.models import User
 import spotipy
 import spotipy.util as util
 # import spotify
@@ -20,9 +21,9 @@ def register():
         redirect(url_for('index'))
     if request.method == 'POST':
         session['username'] = request.form['username']
-        # user = User(request.form['username'])
-        # db_session.add(user)
-        # db_session.commit()
+        user = User(request.form['username'])
+        # db.session.add(user)
+        # db.session.commit()
         return redirect(url_for('index'))
     return render_template('register.html')
 
