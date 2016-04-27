@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 import spotipy
 import spotipy.util as util
 
-
 username = '124028238'
 scope = 'playlist-modify-public'
 token = 'BQAPT0toVFpZiMZQsDZfcSSkAmrsNc1YKK2W2odGLypU5yaXQkCoJ1nSf0-UlH9UzILXaaHnMT7d6esJIDihKY3iwjzVNkaWq-reR2COIAXrx_MOHewN7FbQUdMgH9PWCr458mupplHhFrJuyBZsVrXETbTKl96Rk6vIhH0i_-8cJ6lm5JH_S8cL3A'
@@ -28,55 +27,63 @@ class Playlist(db.Model):
     __tablename__ = 'playlists'
     uri = db.Column(db.String(25), primary_key=True)
     name = db.Column(db.String(120))
+    num_songs = db.Column(db.Integer, default=0)
 
     def __init__(self, name, uri):
         self.name = name
         self.uri = uri
 
     def __repr__(self):
-        return '<Playlist %r>' % self.name
+        return '<Playlist {}>'.format(self.name)
 
 # Song model for database
 class Song(db.Model):
     __tablename__ = 'songs'
     id = db.Column(db.Integer, primary_key=True)
     uri = db.Column(db.String(25))
+    name = db.Column(db.String(120))
     playlist = db.Column(db.String(120))
-    num_votes = db.Column(db.Integer)
+    num_votes = db.Column(db.Integer, default=0)
     rank = db.Column(db.Integer)
 
-    def __init__(self, uri, playlist):
-      self.uri = uri
-      self.playlist = playlist
+    def __init__(self, name, uri, playlist):
+        self.name = name
+        self.uri = uri
+        self.playlist = playlist
+        p = Playlist.query.filter(Playlist.name == playlist).first()
+        self.rank = p.num_songs
+        p.num_songs += 1
 
     def __repr__(self):
-      return '<Song %r Playlist %r>' % self.uri, self.playlist
+        return '<Song: {}, Playlist: {}, Order: {}, Votes: {}>'.format(self.name, self.playlist, self.rank, self.num_votes)
 
     def upvote(self):
-      self.num_votes += 1
-      db.session.commit()
+        self.num_votes += 1
+        db.session.commit()
 
     def downvote(self):
-      self.num_votes -= 1
-      db.session.commit()
+        self.num_votes -= 1
+        db.session.commit()
 
     def set_rank(self, rank):
-      self.rank = rank
-      db.session.commit()
+        self.rank = rank
+        db.session.commit()
 
 
 # Voted model for database
 class Voted(db.Model):
-  __tablename__ = 'voted'
-  song = db.Column(db.String(120), primary_key=True)
-  user = db.Column(db.String(120), primary_key=True)
+    __tablename__ = 'voted'
+    song = db.Column(db.String(120), primary_key=True)
+    user = db.Column(db.String(120), primary_key=True)
+    upvote = db.Column(db.Boolean)
 
-  def __init__(self, song, user):
-    self.song = song
-    self.user = user
+    def __init__(self, song, user, upvote):
+        self.song = song
+        self.user = user
+        self.upvote = upvote
 
-  def __repr__(self):
-    return '<User %r Voted on %r>' % self.user, self.song
+    def __repr__(self):
+        return '<User {} Voted on {} {}>'.format(self.user, self.song, self.upvote)
 
 # User model for database
 class User(db.Model):
@@ -88,12 +95,97 @@ class User(db.Model):
         self.username = username
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User {}: {}>'.format(self.username, self.id)
 
+# ------------- Helper Functions -----------------
 def is_logged_in():
     if 'username' in session:
         return True
     return False
+
+def change_ordering_upvote(song_id):
+    song = Song.query.filter(Song.id == song_id).first()
+    prev_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank - 1).first()
+    if prev_song:
+        while (song.num_votes > prev_song.num_votes):
+            song.rank -= 1
+            prev_song.rank += 1
+            prev_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank - 1).first()
+            if not prev_song:
+                break
+    db.session.commit()
+    # TODO: change ordering spotify
+
+def change_ordering_downvote(song_id):
+    song = Song.query.filter(Song.id == song_id).first()
+    next_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank + 1).first()
+    if next_song:
+        while (song.num_votes < next_song.num_votes):
+            song.rank += 1
+            next_song.rank -= 1
+            next_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank + 1).first()
+            if not next_song:
+                break
+    db.session.commit()
+    # TODO: change ordering spotify
+
+def vote(song_id, user_id, upvote):
+    user_vote = Voted(song_id, user_id, upvote)
+    db.session.add(user_vote)
+    db.session.commit()
+
+def upvote(song_id):
+    if not is_logged_in():
+        return redirect(url_for('login'))
+    user = User.query.filter(User.username == session['username']).first()
+    if Voted.query.filter(Voted.user == user.id, Voted.song == song_id,
+                          Voted.upvote == True).all():
+        print "can't upvote a song twice"
+        return
+    print "if statement: ", Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all()
+    if Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all():
+        print "changing vote from down to up"
+        user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_id).first()
+        user_vote.upvote = True
+
+        song = Song.query.filter(Song.id == song_id).first()
+        song.upvote()
+        song.upvote()
+
+        change_ordering_upvote(song_id)
+    else:
+        print "new vote"
+        vote(song_id, user.id, True)
+        song = Song.query.filter(Song.id == song_id).first()
+        song.upvote()
+        change_ordering_upvote(song_id)
+
+def downvote(song_id):
+    if not is_logged_in():
+        return redirect(url_for('login'))
+    user = User.query.filter(User.username == session['username']).first()
+    if Voted.query.filter(Voted.user == user.id, Voted.song == song_id,
+                          Voted.upvote == False).all():
+        print "can't downvote a song twice"
+        return
+
+    print "if statement: ", Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all()
+    if Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all():
+        print "changing vote from up to down"
+        user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_id).first()
+        user_vote.upvote = False
+
+        song = Song.query.filter(Song.id == song_id).first()
+        song.downvote()
+        song.downvote()
+
+        change_ordering_downvote(song_id)
+    else:
+        print "new vote"
+        vote(song_id, user.id, False)
+        song = Song.query.filter(Song.id == song_id).first()
+        song.downvote()
+        change_ordering_downvote(song_id)
 
 # ------------- Views ----------------------------
 @app.route('/register', methods=['GET', 'POST'])
@@ -101,6 +193,8 @@ def register():
     if is_logged_in():
         redirect(url_for('index'))
     if request.method == 'POST':
+        if User.query.filter(User.username == request.form['username']).all():
+            return redirect(url_for('register'))
         session['username'] = request.form['username']
         user = User(request.form['username'])
         db.session.add(user)
