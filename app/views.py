@@ -6,7 +6,7 @@ import spotipy.util as util
 
 username = '124028238'
 scope = 'playlist-modify-public'
-token = 'BQDJwFOCnl8aG0K8TmSJKAbCTfD2uE0I5XdOzapSaV1wfySiVVVfzfakcnRDgktHFsjdWng6sXoTkP-tidrBX4yh00jcsr5bYMiLhbwwvW6QIEM7wnXsvGQEWSBEmQ5w10AO-jEvQMcjC3GmRevcj0YF_aQwFRb5glSR7WC_KSvAxcWwMIkR9wKlBQ'
+token = 'BQAPT0toVFpZiMZQsDZfcSSkAmrsNc1YKK2W2odGLypU5yaXQkCoJ1nSf0-UlH9UzILXaaHnMT7d6esJIDihKY3iwjzVNkaWq-reR2COIAXrx_MOHewN7FbQUdMgH9PWCr458mupplHhFrJuyBZsVrXETbTKl96Rk6vIhH0i_-8cJ6lm5JH_S8cL3A'
 sp = spotipy.Spotify(auth=token)
 user = sp.user(username)
 
@@ -28,12 +28,10 @@ class Playlist(db.Model):
     __tablename__ = 'playlists'
     uri = db.Column(db.String(25), primary_key=True)
     name = db.Column(db.String(120))
-    # password = db.Column(db.String(80))
 
     def __init__(self, name, uri):
         self.name = name
         self.uri = uri
-        # self.password = password
 
     def __repr__(self):
         return '<Playlist %r>' % self.name
@@ -43,18 +41,16 @@ class Song(db.Model):
     __tablename__ = 'songs'
     id = db.Column(db.Integer, primary_key=True)
     uri = db.Column(db.String(25))
-    name = db.Column(db.String(120))
-    queue = db.Column(db.String(120))
+    playlist = db.Column(db.String(120))
     num_votes = db.Column(db.Integer)
     rank = db.Column(db.Integer)
 
-    def __init__(self, name, uri, queue):
-      self.name = name
+    def __init__(self, uri, playlist):
       self.uri = uri
-      self.queue = queue
+      self.playlist = playlist
 
     def __repr__(self):
-      return '<Song %r Queue %r>' % self.name, self.queue
+      return '<Song %r Playlist %r>' % self.uri, self.playlist
 
     def upvote(self):
       self.num_votes += 1
@@ -138,19 +134,13 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 def index():
     if not is_logged_in():
         return redirect(url_for('login'))
-    birdy_uri = 'spotify:artist:2WX2uTcsvV5OnS0inACecP'
     spotify = spotipy.Spotify()
-
-    results = spotify.artist_albums(birdy_uri, album_type='album')
-    albums = results['items']
-    while results['next']:
-        results = spotify.next(results)
-        albums.extend(results['items'])
     user = {'nickname': 'Miguel'}
+    playlists = Playlist.query.all()
     return render_template("index.html",
                            title='Home',
                            user=user,
-                           albums=albums)
+                           playlists=playlists)
 
 @app.route('/', methods=['POST'])
 def my_form_post():
@@ -159,8 +149,8 @@ def my_form_post():
     if request.form['addbutton'] == 'Add to Party':
       track_ids = [request.form['uri'][14:]]
       sp.user_playlist_add_tracks(username, '2b0pwZQzfNQBTufDZA86Az', track_ids)
-      # sp.user_playlist_create(username, 'TEST')
       playlist = sp.user_playlist_tracks(username,'2b0pwZQzfNQBTufDZA86Az')
+      song = Song(track_ids, '2b0pwZQzfNQBTufDZA86Az')
       q_tracks = []
       for track in playlist['items']:
         q_tracks.append(track['track'])
@@ -176,19 +166,19 @@ def my_form_post():
     return results(processed_text,q_tracks)
   #THIS IS IF WE CLICK UP OR DOWN
   else:
-    playlist = sp.user_playlist_tracks(username,'2b0pwZQzfNQBTufDZA86Az')
+    playlist = sp.user_playlist_tracks(username, request.form['uri'])
     q_tracks = []
     for track in playlist['items']:
       q_tracks.append(track['track'])
-    print("what")
     return results("idk",q_tracks)
 
-@app.route('/new', methods=['POST'])
-def new_playlist(username, playlist_name):
-  sp.user_playlist_create(username, playlist_name)
-  playlist = Playlist(playlist_name, uri)
-  db.session.add(playlist)
-  db.session.commit()
+# creates a new playlist but how to access playlist uri...?
+# @app.route('/new', methods=['POST'])
+# def new_playlist(username, playlist_name):
+#   sp.user_playlist_create(username, playlist_name)
+#   playlist = Playlist(playlist_name, uri)
+#   db.session.add(playlist)
+#   db.session.commit()
   
 
 @app.route('/results')
@@ -202,6 +192,7 @@ def results(search,q_tracks):
     spotify = spotipy.Spotify()
     results = spotify.search(q='track:' + search, type='track')
     items = results['tracks']['items']
+    upper = len(items) if len(items) < 10 else 10
     tracks = []
     for i in range(10):
         track = items[i]
