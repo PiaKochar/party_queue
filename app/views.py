@@ -206,6 +206,12 @@ def results(search,q_tracks):
                           tracks=tracks,
                           q_tracks=q_tracks)
 
+def initialize_db():
+  db.create_all()
+  p = Playlist('TEST', '2b0pwZQzfNQBTufDZA86Az')
+  db.session.add(p)
+  db.session.commit()
+
 if __name__ == '__main__':
-    db.create_all()
+    initialize_db()
     app.run(debug=True)
