@@ -1,6 +1,5 @@
-from flask import render_template, request, flash, session, redirect, url_for
-from app import app
-from app.models import User
+from flask import Flask, request, render_template, flash, session, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 import spotipy
 import spotipy.util as util
 # import spotify
@@ -10,11 +9,64 @@ import spotipy.util as util
 # config.tracefile = b'/tmp/libspotify-trace.log'
 # session = spotify.Session(config)
 
+app = Flask(__name__)
+app.config.from_pyfile('db.cfg')
+db = SQLAlchemy(app)
+
+# ------------Models --------------------------
+# Queue model for database
+class Queue(db.Model):
+    __tablename__ = 'queues'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120))
+    password = db.Column(db.String(80))
+
+    def __init__(self, name, password):
+        self.name = name
+        self.password = password
+
+    def __repr__(self):
+        return '<Queue %r>' % self.name
+
+
+# Song model for database
+class Song(db.Model):
+    __tablename__ = 'songs'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120))
+    queue = db.Column(db.String(120))
+    rank = db.Column(db.Integer)
+
+    def __init__(self, name, queue):
+        self.name = name
+
+    def __repr__(self):
+        return '<Song %r Queue %r>' % self.name, self.queue
+
+    def upvote(self):
+        self.rank += 1
+
+    def downvote(self):
+        self.rank -= 1
+
+# User model for database
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120))
+
+    def __init__(self, username):
+        self.username = username
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
 def is_logged_in():
     if 'username' in session:
         return True
     return False
 
+# ------------- Views ----------------------------
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if is_logged_in():
@@ -22,8 +74,8 @@ def register():
     if request.method == 'POST':
         session['username'] = request.form['username']
         user = User(request.form['username'])
-        # db.session.add(user)
-        # db.session.commit()
+        db.session.add(user)
+        db.session.commit()
         return redirect(url_for('index'))
     return render_template('register.html')
 
@@ -104,6 +156,6 @@ def results(search):
                           title='Home',
                           tracks=tracks)
 
-# @app.route('/add')
-# def add_song(queue):
-
+if __name__ == '__main__':
+    #db.create_all()
+    app.run(debug=True)
