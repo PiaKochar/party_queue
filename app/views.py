@@ -39,8 +39,7 @@ class Playlist(db.Model):
 # Song model for database
 class Song(db.Model):
     __tablename__ = 'songs'
-    id = db.Column(db.Integer, primary_key=True)
-    uri = db.Column(db.String(25))
+    uri = db.Column(db.String(25), primary_key=True)
     name = db.Column(db.String(120))
     playlist = db.Column(db.String(120))
     num_votes = db.Column(db.Integer, default=0)
@@ -128,23 +127,22 @@ def change_ordering_downvote(song_uri):
     db.session.commit()
     # TODO: change ordering spotify
 
-def vote(song_id, user_id, upvote):
-    user_vote = Voted(song_id, user_id, upvote)
+def vote(song_uri, user_id, upvote):
+    user_vote = Voted(song_uri, user_id, upvote)
     db.session.add(user_vote)
     db.session.commit()
 
 def upvote(song_uri):
     if not is_logged_in():
         return redirect(url_for('login'))
-    song_id = Song.query.filter(Song.uri == song_uri).first()
     user = User.query.filter(User.username == session['username']).first()
-    if Voted.query.filter(Voted.user == user.id, Voted.song == song_id,
+    if Voted.query.filter(Voted.user == user.id, Voted.song == song_uri,
                           Voted.upvote == True).all():
         print "can't upvote a song twice"
         return
-    if Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all():
+    if Voted.query.filter(Voted.user == user.id, Voted.song == song_uri).all():
         print "changing vote from down to up"
-        user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_id).first()
+        user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_uri).first()
         user_vote.upvote = True
 
         song = Song.query.filter(Song.uri == song_uri).first()
@@ -154,7 +152,7 @@ def upvote(song_uri):
         change_ordering_upvote(song_uri)
     else:
         print "new vote"
-        vote(song_id, user.id, True)
+        vote(song_uri, user.id, True)
         song = Song.query.filter(Song.uri == song_uri).first()
         song.upvote()
         change_ordering_upvote(song_uri)
@@ -162,16 +160,15 @@ def upvote(song_uri):
 def downvote(song_uri):
     if not is_logged_in():
         return redirect(url_for('login'))
-    song_id = Song.query.filter(Song.uri == song_uri).first()
     user = User.query.filter(User.username == session['username']).first()
-    if Voted.query.filter(Voted.user == user.id, Voted.song == song_id,
+    if Voted.query.filter(Voted.user == user.id, Voted.song == song_uri,
                           Voted.upvote == False).all():
         print "can't downvote a song twice"
         return
 
-    if Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all():
+    if Voted.query.filter(Voted.user == user.id, Voted.song == song_uri).all():
         print "changing vote from up to down"
-        user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_id).first()
+        user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_uri).first()
         user_vote.upvote = False
 
         song = Song.query.filter(Song.uri == song_uri).first()
@@ -182,7 +179,7 @@ def downvote(song_uri):
     else:
         print "new vote"
         print ""
-        vote(song_id, user.id, False)
+        vote(song_uri, user.id, False)
         song = Song.query.filter(Song.uri == song_uri).first()
         song.downvote()
         change_ordering_downvote(song_uri)
@@ -263,7 +260,6 @@ def my_form_post():
     return results(processed_text, q_tracks)
   # upvote
   elif 'up' in request.form:
-    print request.form
     playlist = sp.user_playlist_tracks(username, session['playlist'])
     q_tracks = []
     for track in playlist['items']:
@@ -285,6 +281,10 @@ def my_form_post():
     q_tracks = []
     for track in playlist['items']:
       q_tracks.append(track['track'])
+      if not Song.query.filter(Song.uri == track['track']['uri'][14:]).all():
+        song = Song(track['track']['uri'][14:], session['playlist'])
+        db.session.add(song)
+        db.session.commit()
     print session
     return results("", q_tracks)
 

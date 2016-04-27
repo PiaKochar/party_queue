@@ -30,7 +30,7 @@
     <div class="scroll_queue">
     <h2> CURRENT QUEUE </h2>
     {% for q_track in q_tracks %} 
-        <form action="." method="POST">
+        <form action="." method="PUT">
         <p>
             <input type="submit" name="down" class="down-button" value="Down">
                 <div class="queue-track">{{q_track['name']}}  - {{q_track['artists'][0]['name']}}</div>
