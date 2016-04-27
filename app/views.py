@@ -278,6 +278,17 @@ def my_form_post():
     for track in playlist['items']:
       q_tracks.append(track['track'])
     return results("", q_tracks)
+  # create new playlist
+  elif 'new-playlist' in request.form:
+    text = request.form['text']
+    processed_text = text
+    sp.user_playlist_create(username, processed_text)
+    playlist_uri = sp.user_playlists(username)['items'][0]['uri'][32:]
+    playlist = Playlist(processed_text, playlist_uri)
+    db.session.add(playlist)
+    db.session.commit()
+    session['playlist'] = playlist_uri
+    return results("", [])
   # join a playlist from homepage
   else:
     session['playlist'] = request.form['uri']
@@ -313,11 +324,12 @@ def results(search, q_tracks):
                           playlist=session['playlist'])
 
 
-# @app.route('/new', methods=['POST'])
+@app.route('/', methods=['POST'])
 def new_playlist(playlist_name, playlist_uri):
   if playlist_uri not in Playlist.query.all():
-    # current_user = 'pia'
-    # sp.user_playlist_create(current_user, playlist_name)
+    current_user = 'pia'
+    sp.user_playlist_create(current_user, playlist_name)
+    print sp.user_playlists(username)[0]
     playlist = Playlist(playlist_name, playlist_uri)
     db.session.add(playlist)
     db.session.commit()
@@ -325,9 +337,9 @@ def new_playlist(playlist_name, playlist_uri):
 
 def initialize_db():
   db.create_all()
-  new_playlist('TEST', '2b0pwZQzfNQBTufDZA86Az')
+  # new_playlist('TEST', '2b0pwZQzfNQBTufDZA86Az')
 
 if __name__ == '__main__':
-    # initialize_db()
+    initialize_db()
     # db.create_all()
     app.run(debug=True)

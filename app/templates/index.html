@@ -3,6 +3,10 @@
     <h1 class = "header">PARTY QUEUEUEUE</h1>
     <div class ="main-body">
     <div class="default-center">
+    <form action="." method="POST">
+        <input type="text" name="text" class="textbox">
+        <input type="submit" name="new-playlist" class="greenbutton" value="New Playlist">
+    </form>
     <h2>Hi {{username}}, which party would you like to join?</h2>
     {% for playlist in playlists %} 
     <form action="." method="POST">
