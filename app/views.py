@@ -5,7 +5,7 @@ import spotipy.util as util
 
 username = '124028238'
 scope = 'playlist-modify-public'
-token = 'BQBcobYpjZO1N2KbEpu2S6ngfhQI3JA481ZHxgyRpu2lUMB4-QgMR1mhq15lzGk8VrWg9Q_4hciUY04H_YJYuv8uAWcwgZZS3G-A8rykbixAvlOMCv8U8Ba7lrGc6JbhFB41WSiIVhTN0t7ST1a0SdbzQ0xqmxHkv0mX2WyVRTosl_LMTehthMZrOA'
+token = 'BQBXifl44G82dUJs1nvU0x1q3KLGiIQ5UGyA9osONFD6uUwM2vR2ocI5YjWcrt1ktaM9NljcFiy7Zz3lJkN5p4G1utLqhXD0pcaSHn-tivhiHDx2F2e18jt9vRGGUXMqo1YyCaINeaOOdwMXUTX7tr_-R2xZdjStetEhV5CjvaNVTMBb2DbBugOBhw'
 sp = spotipy.Spotify(auth=token)
 user = sp.user(username)
 
