@@ -102,8 +102,8 @@ def is_logged_in():
         return True
     return False
 
-def change_ordering_upvote(song_id):
-    song = Song.query.filter(Song.uri == song_id).first()
+def change_ordering_upvote(song_uri):
+    song = Song.query.filter(Song.uri == song_uri).first()
     prev_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank - 1).first()
     if prev_song:
         while (song.num_votes > prev_song.num_votes):
@@ -115,8 +115,8 @@ def change_ordering_upvote(song_id):
     db.session.commit()
     # TODO: change ordering spotify
 
-def change_ordering_downvote(song_id):
-    song = Song.query.filter(Song.uri == song_id).first()
+def change_ordering_downvote(song_uri):
+    song = Song.query.filter(Song.uri == song_uri).first()
     next_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank + 1).first()
     if next_song:
         while (song.num_votes < next_song.num_votes):
@@ -133,58 +133,59 @@ def vote(song_id, user_id, upvote):
     db.session.add(user_vote)
     db.session.commit()
 
-def upvote(song_id):
+def upvote(song_uri):
     if not is_logged_in():
         return redirect(url_for('login'))
+    song_id = Song.query.filter(Song.uri == song_uri).first()
     user = User.query.filter(User.username == session['username']).first()
     if Voted.query.filter(Voted.user == user.id, Voted.song == song_id,
                           Voted.upvote == True).all():
         print "can't upvote a song twice"
         return
-    print "if statement: ", Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all()
     if Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all():
         print "changing vote from down to up"
         user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_id).first()
         user_vote.upvote = True
 
-        song = Song.query.filter(Song.uri == song_id).first()
+        song = Song.query.filter(Song.uri == song_uri).first()
         song.upvote()
         song.upvote()
 
-        change_ordering_upvote(song_id)
+        change_ordering_upvote(song_uri)
     else:
         print "new vote"
         vote(song_id, user.id, True)
-        song = Song.query.filter(Song.uri == song_id).first()
+        song = Song.query.filter(Song.uri == song_uri).first()
         song.upvote()
-        change_ordering_upvote(song_id)
+        change_ordering_upvote(song_uri)
 
-def downvote(song_id):
+def downvote(song_uri):
     if not is_logged_in():
         return redirect(url_for('login'))
+    song_id = Song.query.filter(Song.uri == song_uri).first()
     user = User.query.filter(User.username == session['username']).first()
     if Voted.query.filter(Voted.user == user.id, Voted.song == song_id,
                           Voted.upvote == False).all():
         print "can't downvote a song twice"
         return
 
-    print "if statement: ", Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all()
     if Voted.query.filter(Voted.user == user.id, Voted.song == song_id).all():
         print "changing vote from up to down"
         user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_id).first()
         user_vote.upvote = False
 
-        song = Song.query.filter(Song.uri == song_id).first()
+        song = Song.query.filter(Song.uri == song_uri).first()
         song.downvote()
         song.downvote()
 
-        change_ordering_downvote(song_id)
+        change_ordering_downvote(song_uri)
     else:
         print "new vote"
+        print ""
         vote(song_id, user.id, False)
-        song = Song.query.filter(Song.uri == song_id).first()
+        song = Song.query.filter(Song.uri == song_uri).first()
         song.downvote()
-        change_ordering_downvote(song_id)
+        change_ordering_downvote(song_uri)
 
 # ------------- Views ----------------------------
 @app.route('/register', methods=['GET', 'POST'])
