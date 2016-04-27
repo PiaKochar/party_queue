@@ -2,8 +2,6 @@ from flask import Flask, request, render_template, flash, session, redirect, url
 from flask_sqlalchemy import SQLAlchemy
 import spotipy
 import spotipy.util as util
-import spotify 
-
 
 app = Flask(__name__)
 app.config.from_pyfile('db.cfg')
@@ -18,32 +16,35 @@ db = SQLAlchemy(app)
 # playlists = sp.user_playlists(username)
 
 # ------------Models --------------------------
-# Queue model for database
-class Queue(db.Model):
-    __tablename__ = 'queues'
-    id = db.Column(db.Integer, primary_key=True)
+# Playlist model for database
+class Playlist(db.Model):
+    __tablename__ = 'playlists'
+    uri = db.Column(db.String(25), primary_key=True)
     name = db.Column(db.String(120))
-    password = db.Column(db.String(80))
+    # password = db.Column(db.String(80))
 
-    def __init__(self, name, password):
+    def __init__(self, name, uri):
         self.name = name
-        self.password = password
+        self.uri = uri
+        # self.password = password
 
     def __repr__(self):
-        return '<Queue %r>' % self.name
-
+        return '<Playlist %r>' % self.name
 
 # Song model for database
 class Song(db.Model):
     __tablename__ = 'songs'
     id = db.Column(db.Integer, primary_key=True)
+    uri = db.Column(db.String(25))
     name = db.Column(db.String(120))
     queue = db.Column(db.String(120))
     num_votes = db.Column(db.Integer)
     rank = db.Column(db.Integer)
 
-    def __init__(self, name, queue):
+    def __init__(self, name, uri, queue):
       self.name = name
+      self.uri = uri
+      self.queue = queue
 
     def __repr__(self):
       return '<Song %r Queue %r>' % self.name, self.queue
@@ -146,7 +147,7 @@ def index():
 
 @app.route('/', methods=['POST'])
 def my_form_post():
-  print(request.form)
+  # print(request.form)
   if 'addbutton' in request.form:
     if request.form['addbutton'] == 'Add to Party':
       username = '124028238'
@@ -159,16 +160,20 @@ def my_form_post():
       # sp.user_playlist_create(username, 'TEST')
       playlist = sp.user_playlist_tracks(username,'2b0pwZQzfNQBTufDZA86Az')
       for track in playlist['items']:
-        print(track['track']['name'])
+        # print(track['track']['name'])
       return results('hello')
   else:
     text = request.form['text']
     processed_text = text.lower()
     return results(processed_text)
 
-# @app.route('/', methods=['POST'])
-# def add_post():
-#   return add_song(queue)
+@app.route('/new', methods=['POST'])
+def new_playlist(username, playlist_name):
+  sp.user_playlist_create(username, playlist_name)
+  playlist = Playlist(playlist_name, uri)
+  db.session.add(playlist)
+  db.session.commit()
+  
 
 @app.route('/results')
 def results(search):
@@ -189,8 +194,6 @@ def results(search):
       # tracks.append(track['name'] + " " + track['artists'][0]['name'] + \
       #  " " + track['uri'])
         tracks.append(track)
-
-
     return render_template("results.html",
                           title='Home',
                           tracks=tracks)
