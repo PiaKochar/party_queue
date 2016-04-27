@@ -56,7 +56,7 @@ class Song(db.Model):
 
     def __repr__(self):
         return '<Song: {}, Playlist: {}, Order: {}, Votes: {}>'.format(self.name, self.playlist, self.rank, self.num_votes)
-        
+
     def upvote(self):
         self.num_votes += 1
         db.session.commit()
@@ -251,7 +251,7 @@ def my_form_post():
       q_tracks = []
       for track in playlist['items']:
         q_tracks.append(track['track'])
-      return results("", [])
+      return results("", q_tracks)
   # search for songs
   elif 'my-form' in request.form:
     playlist = sp.user_playlist_tracks(username, session['playlist'])
@@ -276,7 +276,7 @@ def my_form_post():
     q_tracks = []
     for track in playlist['items']:
       q_tracks.append(track['track'])
-    return results("", [])
+    return results("", q_tracks)
 
 
 @app.route('/results')
@@ -296,7 +296,8 @@ def results(search, q_tracks):
                           title='Home',
                           tracks=tracks,
                           q_tracks=q_tracks,
-                          username=session['username'])
+                          username=session['username'],
+                          playlist=session['playlist'])
 
 
 # @app.route('/new', methods=['POST'])

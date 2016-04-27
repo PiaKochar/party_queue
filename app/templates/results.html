@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
     <h1 class = "header">PARTY QUEUEUEUE</h1>
-<<<<<<< HEAD
     <p>Hi {{username}}</p>
-=======
     <div class="main-body">
->>>>>>> 54d7a66dc145b630c63cdb369cadd8d863b32699
     <div class= "searchbar">
     <form action="." method="POST">
         <input type="text" name="text" class="textbox">
@@ -42,7 +39,7 @@
     </div>
     <div class="buffer"> HI </div>
     <div class="play_button">
-    <iframe src="https://embed.spotify.com/?uri=spotify:user:124028238:playlist:2b0pwZQzfNQBTufDZA86Az" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+    <iframe src="https://embed.spotify.com/?uri=spotify:user:124028238:playlist:{{playlist}}" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
     </div>
     </div>
     <script type="text/javascript">
