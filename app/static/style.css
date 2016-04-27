@@ -19,8 +19,8 @@ p 				{ padding-left: 10px; color: white;}
                   height: 30;
                   border: none;}
 .addbutton      { background:url("AddButton.svg");
-				  font-family: 'Montserrat' ; 
-				  cursor:pointer;
+				          font-family: 'Montserrat' ; 
+				          cursor:pointer;
                   width: 120;
                   height: 30;
                   border: none;}
@@ -33,6 +33,7 @@ p 				{ padding-left: 10px; color: white;}
     			  width: 275px; 
     			  padding-left:10px; 
     			  padding-right:10px; } 
+.invis          { display:none; }
 
 @media only screen and (min-width: 769px) {
 .header         { font-size: 5em;}
