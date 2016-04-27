@@ -6,7 +6,7 @@ import spotipy.util as util
 
 username = '124028238'
 scope = 'playlist-modify-public'
-token = 'BQAPT0toVFpZiMZQsDZfcSSkAmrsNc1YKK2W2odGLypU5yaXQkCoJ1nSf0-UlH9UzILXaaHnMT7d6esJIDihKY3iwjzVNkaWq-reR2COIAXrx_MOHewN7FbQUdMgH9PWCr458mupplHhFrJuyBZsVrXETbTKl96Rk6vIhH0i_-8cJ6lm5JH_S8cL3A'
+token = 'BQBsQEYN1vW1Z6xyt6Bnzmd8mtarbEZNHwVs7CCAoy0iSp7x6ip7huvX22rFbrGCZssOs5WEV4d_l00NKBDDP-GKbCSsFWwUHx7S0rqw0a8s7eq79tjxtYWvLZ2jT14wlolbpOEWAL5YL6TDJ0thWj-vEPXXIzLinosjkjxuD3CvR0S0qPWNjfN74A'
 sp = spotipy.Spotify(auth=token)
 user = sp.user(username)
 
@@ -50,7 +50,7 @@ class Song(db.Model):
       self.playlist = playlist
 
     def __repr__(self):
-      return '<Song %r Playlist %r>' % self.uri, self.playlist
+      return '<Song %r Playlist %r>' % (self.uri, self.playlist)
 
     def upvote(self):
       self.num_votes += 1
@@ -144,74 +144,81 @@ def index():
 
 @app.route('/', methods=['POST'])
 def my_form_post():
-  # THIS IS IF WE ADD TO PARTY
+  # add to party
   if 'addbutton' in request.form:
     if request.form['addbutton'] == 'Add to Party':
       track_ids = [request.form['uri'][14:]]
-      sp.user_playlist_add_tracks(username, '2b0pwZQzfNQBTufDZA86Az', track_ids)
-      playlist = sp.user_playlist_tracks(username,'2b0pwZQzfNQBTufDZA86Az')
-      song = Song(track_ids, '2b0pwZQzfNQBTufDZA86Az')
+      sp.user_playlist_add_tracks(username, session['playlist'], track_ids)
+      playlist = sp.user_playlist_tracks(username, session['playlist'])
+      song = Song(track_ids[0], session['playlist'])
+      db.session.add(song)
+      db.session.commit()
       q_tracks = []
       for track in playlist['items']:
         q_tracks.append(track['track'])
-      return results('hello',q_tracks)
-  # THIS IS IF WE SEARCH
+      return results("", [])
+  # search for songs
   elif 'my-form' in request.form:
-    playlist = sp.user_playlist_tracks(username,'2b0pwZQzfNQBTufDZA86Az')
+    playlist = sp.user_playlist_tracks(username, session['playlist'])
     q_tracks = []
     for track in playlist['items']:
       q_tracks.append(track['track'])
     text = request.form['text']
     processed_text = text.lower()
     return results(processed_text,q_tracks)
-  #THIS IS IF WE CLICK UP OR DOWN
+  # upvote
+  elif 'up' in request.form:
+    # upvote(request.form['uri'])
+    return results("", [])
+  # downvote
+  elif 'down' in request.form:
+    # downvote(request.form['uri'])
+    return results("", [])
+  # join a playlist from homepage
   else:
-    playlist = sp.user_playlist_tracks(username, request.form['uri'])
+    session['playlist'] = request.form['uri']
+    playlist = sp.user_playlist_tracks(username, session['playlist'])
     q_tracks = []
     for track in playlist['items']:
       q_tracks.append(track['track'])
-    return results("idk",q_tracks)
+    return results("", [])
 
-# creates a new playlist but how to access playlist uri...?
-# @app.route('/new', methods=['POST'])
-# def new_playlist(username, playlist_name):
-#   sp.user_playlist_create(username, playlist_name)
-#   playlist = Playlist(playlist_name, uri)
-#   db.session.add(playlist)
-#   db.session.commit()
-  
 
 @app.route('/results')
-def results(search,q_tracks):
+def results(search, q_tracks):
     if not is_logged_in():
         return redirect(url_for('login'))
-    # if request.form['submit'] == 'Add to Party':
-    #     song = Song(track['name'], queue name) # how to get this data?
-    #     db.session.add(song)
-    #     db.session.commit()
     spotify = spotipy.Spotify()
     results = spotify.search(q='track:' + search, type='track')
     items = results['tracks']['items']
     upper = len(items) if len(items) < 10 else 10
     tracks = []
-    for i in range(10):
-        track = items[i]
-      # for key in track:
-      #     print "key: %s , value: %s" % (key, track[key])
-      # tracks.append(track['name'] + " " + track['artists'][0]['name'] + \
-      #  " " + track['uri'])
-        tracks.append(track)
+    if not search == "":
+      for i in range(upper):
+          track = items[i]
+          tracks.append(track)
     return render_template("results.html",
                           title='Home',
                           tracks=tracks,
                           q_tracks=q_tracks)
 
+
+# @app.route('/new', methods=['POST'])
+def new_playlist(playlist_name, playlist_uri):
+  if playlist_uri not in Playlist.query.all():
+    print 'not in db'
+    # current_user = 'pia'
+    # sp.user_playlist_create(current_user, playlist_name)
+    playlist = Playlist(playlist_name, playlist_uri)
+    db.session.add(playlist)
+    db.session.commit()
+  
+
 def initialize_db():
   db.create_all()
-  p = Playlist('TEST', '2b0pwZQzfNQBTufDZA86Az')
-  db.session.add(p)
-  db.session.commit()
+  new_playlist('TEST', '2b0pwZQzfNQBTufDZA86Az')
 
 if __name__ == '__main__':
-    initialize_db()
+    # initialize_db()
+    # db.create_all()
     app.run(debug=True)
