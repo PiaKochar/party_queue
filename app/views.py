@@ -46,11 +46,10 @@ class Song(db.Model):
     num_votes = db.Column(db.Integer, default=0)
     rank = db.Column(db.Integer)
 
-    def __init__(self, name, uri, playlist):
-        self.name = name
+    def __init__(self, uri, playlist):
         self.uri = uri
         self.playlist = playlist
-        p = Playlist.query.filter(Playlist.name == playlist).first()
+        p = Playlist.query.filter(Playlist.uri == playlist).first()
         self.rank = p.num_songs
         p.num_songs += 1
 
@@ -104,7 +103,7 @@ def is_logged_in():
     return False
 
 def change_ordering_upvote(song_id):
-    song = Song.query.filter(Song.id == song_id).first()
+    song = Song.query.filter(Song.uri == song_id).first()
     prev_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank - 1).first()
     if prev_song:
         while (song.num_votes > prev_song.num_votes):
@@ -117,7 +116,7 @@ def change_ordering_upvote(song_id):
     # TODO: change ordering spotify
 
 def change_ordering_downvote(song_id):
-    song = Song.query.filter(Song.id == song_id).first()
+    song = Song.query.filter(Song.uri == song_id).first()
     next_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank + 1).first()
     if next_song:
         while (song.num_votes < next_song.num_votes):
@@ -148,7 +147,7 @@ def upvote(song_id):
         user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_id).first()
         user_vote.upvote = True
 
-        song = Song.query.filter(Song.id == song_id).first()
+        song = Song.query.filter(Song.uri == song_id).first()
         song.upvote()
         song.upvote()
 
@@ -156,7 +155,7 @@ def upvote(song_id):
     else:
         print "new vote"
         vote(song_id, user.id, True)
-        song = Song.query.filter(Song.id == song_id).first()
+        song = Song.query.filter(Song.uri == song_id).first()
         song.upvote()
         change_ordering_upvote(song_id)
 
@@ -175,7 +174,7 @@ def downvote(song_id):
         user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_id).first()
         user_vote.upvote = False
 
-        song = Song.query.filter(Song.id == song_id).first()
+        song = Song.query.filter(Song.uri == song_id).first()
         song.downvote()
         song.downvote()
 
@@ -183,7 +182,7 @@ def downvote(song_id):
     else:
         print "new vote"
         vote(song_id, user.id, False)
-        song = Song.query.filter(Song.id == song_id).first()
+        song = Song.query.filter(Song.uri == song_id).first()
         song.downvote()
         change_ordering_downvote(song_id)
 
@@ -260,15 +259,24 @@ def my_form_post():
       q_tracks.append(track['track'])
     text = request.form['text']
     processed_text = text.lower()
-    return results(processed_text,q_tracks)
+    return results(processed_text, q_tracks)
   # upvote
   elif 'up' in request.form:
+    print request.form
+    playlist = sp.user_playlist_tracks(username, session['playlist'])
+    q_tracks = []
+    for track in playlist['items']:
+      q_tracks.append(track['track'])
     upvote(request.form['uri'])
-    return results("", [])
+    return results("", q_tracks)
   # downvote
   elif 'down' in request.form:
+    playlist = sp.user_playlist_tracks(username, session['playlist'])
+    q_tracks = []
+    for track in playlist['items']:
+      q_tracks.append(track['track'])
     downvote(request.form['uri'])
-    return results("", [])
+    return results("", q_tracks)
   # join a playlist from homepage
   else:
     session['playlist'] = request.form['uri']
@@ -276,6 +284,7 @@ def my_form_post():
     q_tracks = []
     for track in playlist['items']:
       q_tracks.append(track['track'])
+    print session
     return results("", q_tracks)
 
 
@@ -303,7 +312,6 @@ def results(search, q_tracks):
 # @app.route('/new', methods=['POST'])
 def new_playlist(playlist_name, playlist_uri):
   if playlist_uri not in Playlist.query.all():
-    print 'not in db'
     # current_user = 'pia'
     # sp.user_playlist_create(current_user, playlist_name)
     playlist = Playlist(playlist_name, playlist_uri)
