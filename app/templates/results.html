@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
     <h1 class = "header">PARTY QUEUEUEUE</h1>
-    
     <div class="main-body">
     <div class="default-center">
     <h2>{{username}}, this party is truly lit!!</h2>>
@@ -30,7 +29,7 @@
     <div class="scroll_queue">
     <h2> CURRENT QUEUE </h2>
     {% for q_track in q_tracks %} 
-        <form action="." method="PUT">
+        <form action="." method="POST">
         <p>
             <input type="submit" name="down" class="down-button" value="Down">
                 <div class="queue-track">{{q_track['name']}}  - {{q_track['artists'][0]['name']}}</div>

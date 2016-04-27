@@ -146,6 +146,7 @@ def upvote(song_uri):
         user_vote.upvote = True
 
         song = Song.query.filter(Song.uri == song_uri).first()
+        print song
         song.upvote()
         song.upvote()
 
@@ -260,19 +261,21 @@ def my_form_post():
     return results(processed_text, q_tracks)
   # upvote
   elif 'up' in request.form:
+    print 'upvote'
     playlist = sp.user_playlist_tracks(username, session['playlist'])
     q_tracks = []
     for track in playlist['items']:
       q_tracks.append(track['track'])
-    upvote(request.form['uri'])
+    upvote(request.form['uri'][14:])
     return results("", q_tracks)
   # downvote
   elif 'down' in request.form:
+    print 'downvote'
     playlist = sp.user_playlist_tracks(username, session['playlist'])
     q_tracks = []
     for track in playlist['items']:
       q_tracks.append(track['track'])
-    downvote(request.form['uri'])
+    downvote(request.form['uri'][14:])
     return results("", q_tracks)
   # join a playlist from homepage
   else:
