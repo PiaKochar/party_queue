@@ -8,6 +8,16 @@
     </form>
     </div>
     <iframe src="https://embed.spotify.com/?uri=spotify:user:124028238:playlist:2b0pwZQzfNQBTufDZA86Az" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+    {% for q_track in q_tracks %} 
+        <form action="." method="POST">
+            <input type="submit" name="down" class="searchbutton" value="Down">
+                {{q_track['name']}} {{q_track['uri']}}
+            <input type="submit" name="up" class="searchbutton" value="Up">
+            <input type ="text" name="uri" class="invis" value={{q_track['uri']}}>
+        </form>
+    {% endfor %}
+
+
     {% for track in tracks %}
     <form action="." method="POST">
         <p>

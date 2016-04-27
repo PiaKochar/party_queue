@@ -4,6 +4,11 @@ import spotipy
 import spotipy.util as util
 import spotify 
 
+username = '124028238'
+scope = 'playlist-modify-public'
+token = 'BQDJwFOCnl8aG0K8TmSJKAbCTfD2uE0I5XdOzapSaV1wfySiVVVfzfakcnRDgktHFsjdWng6sXoTkP-tidrBX4yh00jcsr5bYMiLhbwwvW6QIEM7wnXsvGQEWSBEmQ5w10AO-jEvQMcjC3GmRevcj0YF_aQwFRb5glSR7WC_KSvAxcWwMIkR9wKlBQ'
+sp = spotipy.Spotify(auth=token)
+user = sp.user(username)
 
 app = Flask(__name__)
 app.config.from_pyfile('db.cfg')
@@ -145,31 +150,41 @@ def index():
 @app.route('/', methods=['POST'])
 def my_form_post():
   print(request.form)
+  # THIS IS IF WE SEARCH
   if 'addbutton' in request.form:
     if request.form['addbutton'] == 'Add to Party':
-      username = '124028238'
-      scope = 'playlist-modify-public'
-      token = 'BQDJwFOCnl8aG0K8TmSJKAbCTfD2uE0I5XdOzapSaV1wfySiVVVfzfakcnRDgktHFsjdWng6sXoTkP-tidrBX4yh00jcsr5bYMiLhbwwvW6QIEM7wnXsvGQEWSBEmQ5w10AO-jEvQMcjC3GmRevcj0YF_aQwFRb5glSR7WC_KSvAxcWwMIkR9wKlBQ'
-      sp = spotipy.Spotify(auth=token)
-      user = sp.user(username)
       track_ids = [request.form['uri'][14:]]
       sp.user_playlist_add_tracks(username, '2b0pwZQzfNQBTufDZA86Az', track_ids)
       # sp.user_playlist_create(username, 'TEST')
       playlist = sp.user_playlist_tracks(username,'2b0pwZQzfNQBTufDZA86Az')
+      q_tracks = []
       for track in playlist['items']:
-        print(track['track']['name'])
-      return results('hello')
-  else:
+        q_tracks.append(track['track'])
+      return results('hello',q_tracks)
+  # THIS IS IF WE SEARCH
+  elif 'my-form' in request.form:
+    playlist = sp.user_playlist_tracks(username,'2b0pwZQzfNQBTufDZA86Az')
+    q_tracks = []
+    for track in playlist['items']:
+      q_tracks.append(track['track'])
     text = request.form['text']
     processed_text = text.lower()
-    return results(processed_text)
+    return results(processed_text,q_tracks)
+  #THIS IS IF WE CLICK UP OR DOWN
+  else:
+    playlist = sp.user_playlist_tracks(username,'2b0pwZQzfNQBTufDZA86Az')
+    q_tracks = []
+    for track in playlist['items']:
+      q_tracks.append(track['track'])
+    print("what")
+    return results("idk",q_tracks)
 
 # @app.route('/', methods=['POST'])
 # def add_post():
 #   return add_song(queue)
 
 @app.route('/results')
-def results(search):
+def results(search,q_tracks):
     if not is_logged_in():
         return redirect(url_for('login'))
     # if request.form['submit'] == 'Add to Party':
@@ -191,7 +206,8 @@ def results(search):
 
     return render_template("results.html",
                           title='Home',
-                          tracks=tracks)
+                          tracks=tracks,
+                          q_tracks=q_tracks)
 
 if __name__ == '__main__':
     db.create_all()
