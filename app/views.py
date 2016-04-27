@@ -88,7 +88,7 @@ def login():
             session['username'] = request.form['username']
             return redirect(url_for('index'))
         else:
-            return (url_for('login'))
+            return redirect(url_for('login'))
     return render_template('login.html')
 
 @app.route('/logout')
