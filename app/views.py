@@ -6,7 +6,7 @@ import spotipy.util as util
 
 username = '124028238'
 scope = 'playlist-modify-public'
-token = 'BQAPT0toVFpZiMZQsDZfcSSkAmrsNc1YKK2W2odGLypU5yaXQkCoJ1nSf0-UlH9UzILXaaHnMT7d6esJIDihKY3iwjzVNkaWq-reR2COIAXrx_MOHewN7FbQUdMgH9PWCr458mupplHhFrJuyBZsVrXETbTKl96Rk6vIhH0i_-8cJ6lm5JH_S8cL3A'
+token = 'BQBcobYpjZO1N2KbEpu2S6ngfhQI3JA481ZHxgyRpu2lUMB4-QgMR1mhq15lzGk8VrWg9Q_4hciUY04H_YJYuv8uAWcwgZZS3G-A8rykbixAvlOMCv8U8Ba7lrGc6JbhFB41WSiIVhTN0t7ST1a0SdbzQ0xqmxHkv0mX2WyVRTosl_LMTehthMZrOA'
 sp = spotipy.Spotify(auth=token)
 user = sp.user(username)
 
@@ -213,5 +213,5 @@ def initialize_db():
   db.session.commit()
 
 if __name__ == '__main__':
-    initialize_db()
+    # initialize_db()
     app.run(debug=True)

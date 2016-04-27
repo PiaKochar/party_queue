@@ -1,32 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
     <h1 class = "header">PARTY QUEUEUEUE</h1>
+    <div class="main-body">
     <div class= "searchbar">
     <form action="." method="POST">
         <input type="text" name="text" class="textbox">
         <input type="submit" name="my-form" class="searchbutton" value="Search">
     </form>
     </div>
-    <iframe src="https://embed.spotify.com/?uri=spotify:user:124028238:playlist:2b0pwZQzfNQBTufDZA86Az" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
-    {% for q_track in q_tracks %} 
-        <form action="." method="POST">
-            <input type="submit" name="down" class="searchbutton" value="Down">
-                {{q_track['name']}} {{q_track['uri']}}
-            <input type="submit" name="up" class="searchbutton" value="Up">
-            <input type ="text" name="uri" class="invis" value={{q_track['uri']}}>
-        </form>
-    {% endfor %}
-
-
+    <div class="search_results">
+    <h2> SEARCH RESULTS </h2>
     {% for track in tracks %}
     <form action="." method="POST">
         <p>
             <input type ="submit" name="addbutton" class="addbutton" value="Add to Party">
             <input type ="text" name="uri" class="invis" value={{track['uri']}}>
-            <b>Song: </b> <a>{{track['name']}}</a> <b> Artist: </b> <a> {{track['artists'][0]['name']}}</a>
+            <div class=search-track><b>Song: </b> <a>{{track['name']}}</a> <b> Artist: </b> <a> {{track['artists'][0]['name']}}</a>
+            </div>
         </p>
     </form>
     {% endfor %}
+    </div>
+    <div class="buffer"> HI </div>
+    <div class="scroll_queue">
+    <h2> CURRENT QUEUE </h2>
+    {% for q_track in q_tracks %} 
+        <form action="." method="POST">
+        <p>
+            <input type="submit" name="down" class="down-button" value="Down">
+                <div class="queue-track">{{q_track['name']}}  - {{q_track['artists'][0]['name']}}</div>
+            <input type="submit" name="up" class="up-button" value="Up">
+            <input type ="text" name="uri" class="invis" value={{q_track['uri']}}>
+            <div class="buffer2"> HI </div>
+        </p>
+        </form>
+    {% endfor %}
+    </div>
+    <div class="buffer"> HI </div>
+    <div class="play_button">
+    <iframe src="https://embed.spotify.com/?uri=spotify:user:124028238:playlist:2b0pwZQzfNQBTufDZA86Az" width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+    </div>
+    </div>
     <script type="text/javascript">
     </script>
 {% endblock %}
