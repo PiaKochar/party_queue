@@ -5,7 +5,7 @@ import spotipy.util as util
 
 username = '124028238'
 scope = 'playlist-modify-public'
-token = 'BQBXifl44G82dUJs1nvU0x1q3KLGiIQ5UGyA9osONFD6uUwM2vR2ocI5YjWcrt1ktaM9NljcFiy7Zz3lJkN5p4G1utLqhXD0pcaSHn-tivhiHDx2F2e18jt9vRGGUXMqo1YyCaINeaOOdwMXUTX7tr_-R2xZdjStetEhV5CjvaNVTMBb2DbBugOBhw'
+token = 'BQDgsh7PDQGsiKzmwvC4ienDKcYfwq2nz47SNELwb5U6RIXzUgZcWFWhD1Q8uLlOjGDvmhSZb4ovYVzcYkhmKVLCVmPcf9_t5gFH6EABhC50C8XOEP-7dopqMtB0YEBD80sobh8Cbj_ofdkEfDW5WoW6DO2lmwRQeoiErYncYgC2qnXYiypF271pTg'
 sp = spotipy.Spotify(auth=token)
 user = sp.user(username)
 
@@ -40,13 +40,14 @@ class Playlist(db.Model):
 class Song(db.Model):
     __tablename__ = 'songs'
     uri = db.Column(db.String(25), primary_key=True)
+    playlist = db.Column(db.String(120), primary_key=True)
     name = db.Column(db.String(120))
-    playlist = db.Column(db.String(120))
     num_votes = db.Column(db.Integer, default=0)
     rank = db.Column(db.Integer)
 
     def __init__(self, uri, playlist):
         self.uri = uri
+        self.num_votes = 0;
         self.playlist = playlist
         p = Playlist.query.filter(Playlist.uri == playlist).first()
         self.rank = p.num_songs
@@ -264,18 +265,18 @@ def my_form_post():
     print 'upvote'
     playlist = sp.user_playlist_tracks(username, session['playlist'])
     q_tracks = []
+    upvote(request.form['uri'][14:])
     for track in playlist['items']:
       q_tracks.append(track['track'])
-    upvote(request.form['uri'][14:])
     return results("", q_tracks)
   # downvote
   elif 'down' in request.form:
     print 'downvote'
     playlist = sp.user_playlist_tracks(username, session['playlist'])
     q_tracks = []
+    downvote(request.form['uri'][14:])
     for track in playlist['items']:
       q_tracks.append(track['track'])
-    downvote(request.form['uri'][14:])
     return results("", q_tracks)
   # join a playlist from homepage
   else:
@@ -288,7 +289,6 @@ def my_form_post():
         song = Song(track['track']['uri'][14:], session['playlist'])
         db.session.add(song)
         db.session.commit()
-    print session
     return results("", q_tracks)
 
 
