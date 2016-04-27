@@ -84,8 +84,11 @@ def login():
     if is_logged_in():
         return redirect(url_for('index'))
     if request.method == 'POST':
-        session['username'] = request.form['username']
-        return redirect(url_for('index'))
+        if User.query.filter(User.username == request.form['username']).all():
+            session['username'] = request.form['username']
+            return redirect(url_for('index'))
+        else:
+            return (url_for('login'))
     return render_template('login.html')
 
 @app.route('/logout')
