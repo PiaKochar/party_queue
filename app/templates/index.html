@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     <h1 class = "header">PARTY QUEUEUEUE</h1>
+    <p>Hi {{username}}</p>
     {% for playlist in playlists %} 
     <form action="." method="POST">
         <font color="white">{{playlist['name']}}</font>

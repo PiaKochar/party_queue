@@ -5,7 +5,7 @@ import spotipy.util as util
 
 username = '124028238'
 scope = 'playlist-modify-public'
-token = 'BQBsQEYN1vW1Z6xyt6Bnzmd8mtarbEZNHwVs7CCAoy0iSp7x6ip7huvX22rFbrGCZssOs5WEV4d_l00NKBDDP-GKbCSsFWwUHx7S0rqw0a8s7eq79tjxtYWvLZ2jT14wlolbpOEWAL5YL6TDJ0thWj-vEPXXIzLinosjkjxuD3CvR0S0qPWNjfN74A'
+token = 'BQBcobYpjZO1N2KbEpu2S6ngfhQI3JA481ZHxgyRpu2lUMB4-QgMR1mhq15lzGk8VrWg9Q_4hciUY04H_YJYuv8uAWcwgZZS3G-A8rykbixAvlOMCv8U8Ba7lrGc6JbhFB41WSiIVhTN0t7ST1a0SdbzQ0xqmxHkv0mX2WyVRTosl_LMTehthMZrOA'
 sp = spotipy.Spotify(auth=token)
 user = sp.user(username)
 
@@ -55,23 +55,7 @@ class Song(db.Model):
         p.num_songs += 1
 
     def __repr__(self):
-<<<<<<< HEAD
-      return '<Song %r Playlist %r>' % (self.uri, self.playlist)
-=======
         return '<Song: {}, Playlist: {}, Order: {}, Votes: {}>'.format(self.name, self.playlist, self.rank, self.num_votes)
->>>>>>> b166ce3b43e625831f1510cec2287adb4dc8d68e
-
-    def upvote(self):
-        self.num_votes += 1
-        db.session.commit()
-
-    def downvote(self):
-        self.num_votes -= 1
-        db.session.commit()
-
-    def set_rank(self, rank):
-        self.rank = rank
-        db.session.commit()
 
 
 # Voted model for database
@@ -238,7 +222,8 @@ def index():
     return render_template("index.html",
                            title='Home',
                            user=user,
-                           playlists=playlists)
+                           playlists=playlists,
+                           username=session['username'])
 
 @app.route('/', methods=['POST'])
 def my_form_post():
@@ -266,11 +251,11 @@ def my_form_post():
     return results(processed_text,q_tracks)
   # upvote
   elif 'up' in request.form:
-    # upvote(request.form['uri'])
+    upvote(request.form['uri'])
     return results("", [])
   # downvote
   elif 'down' in request.form:
-    # downvote(request.form['uri'])
+    downvote(request.form['uri'])
     return results("", [])
   # join a playlist from homepage
   else:
@@ -298,7 +283,8 @@ def results(search, q_tracks):
     return render_template("results.html",
                           title='Home',
                           tracks=tracks,
-                          q_tracks=q_tracks)
+                          q_tracks=q_tracks,
+                          username=session['username'])
 
 
 # @app.route('/new', methods=['POST'])
