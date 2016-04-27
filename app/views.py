@@ -67,6 +67,8 @@ class Voted(db.Model):
     self.song = song
     self.user = user
 
+  def __repr__(self):
+    return '<User %r Voted on %r>' % self.user, self.song
 
 # User model for database
 class User(db.Model):
