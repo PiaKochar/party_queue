@@ -39,19 +39,38 @@ class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     queue = db.Column(db.String(120))
+    num_votes = db.Column(db.Integer)
     rank = db.Column(db.Integer)
 
     def __init__(self, name, queue):
-        self.name = name
+      self.name = name
 
     def __repr__(self):
-        return '<Song %r Queue %r>' % self.name, self.queue
+      return '<Song %r Queue %r>' % self.name, self.queue
 
     def upvote(self):
-        self.rank += 1
+      self.num_votes += 1
+      db.session.commit()
 
     def downvote(self):
-        self.rank -= 1
+      self.num_votes -= 1
+      db.session.commit()
+
+    def set_rank(self, rank):
+      self.rank = rank
+      db.session.commit()
+
+
+# Voted model for database
+class Voted(db.Model):
+  __tablename__ = 'voted'
+  song = db.Column(db.String(120), primary_key=True)
+  user = db.Column(db.String(120), primary_key=True)
+
+  def __init__(self, song, user):
+    self.song = song
+    self.user = user
+
 
 # User model for database
 class User(db.Model):
