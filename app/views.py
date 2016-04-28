@@ -23,6 +23,8 @@ db = SQLAlchemy(app)
 
 # ------------Models --------------------------
 # Playlist model for database
+
+
 class Playlist(db.Model):
     __tablename__ = 'playlists'
     uri = db.Column(db.String(25), primary_key=True)
@@ -37,6 +39,8 @@ class Playlist(db.Model):
         return '<Playlist {}>'.format(self.name)
 
 # Song model for database
+
+
 class Song(db.Model):
     __tablename__ = 'songs'
     uri = db.Column(db.String(25), primary_key=True)
@@ -47,14 +51,15 @@ class Song(db.Model):
 
     def __init__(self, uri, playlist):
         self.uri = uri
-        self.num_votes = 0;
+        self.num_votes = 0
         self.playlist = playlist
         p = Playlist.query.filter(Playlist.uri == playlist).first()
         self.rank = p.num_songs
         p.num_songs += 1
 
     def __repr__(self):
-        return '<Song: {}, Playlist: {}, Order: {}, Votes: {}>'.format(self.name, self.playlist, self.rank, self.num_votes)
+        return '<Song: {}, Playlist: {}, Order: {}, Votes: {}>'.format(
+            self.name, self.playlist, self.rank, self.num_votes)
 
     def upvote(self):
         self.num_votes += 1
@@ -84,9 +89,12 @@ class Voted(db.Model):
         self.upvote = upvote
 
     def __repr__(self):
-        return '<User {} Voted on {} {}>'.format(self.user, self.song, self.upvote)
+        return '<User {} Voted on {} {}>'.format(
+            self.user, self.song, self.upvote)
 
 # User model for database
+
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -99,63 +107,82 @@ class User(db.Model):
         return '<User {}: {}>'.format(self.username, self.id)
 
 # ------------- Helper Functions -----------------
+
+
 def is_logged_in():
     if 'username' in session:
         return True
     return False
 
+
 def change_ordering_upvote(song_uri):
     song = Song.query.filter(Song.uri == song_uri).first()
     print "upvote song at rank: " + str(song.rank)
-    prev_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank - 1).first()
+    prev_song = Song.query.filter(
+        Song.playlist == song.playlist,
+        Song.rank == song.rank - 1).first()
     if prev_song:
         print " UGHGHH" + str(song.num_votes)
         print prev_song.num_votes
         while (song.num_votes > prev_song.num_votes):
             print str(song.rank) + "-->" + str(prev_song.rank)
-            sp.user_playlist_reorder_tracks(username, song.playlist, song.rank, prev_song.rank)
+            sp.user_playlist_reorder_tracks(
+                username, song.playlist, song.rank, prev_song.rank)
             song.rank -= 1
             prev_song.rank += 1
             db.session.commit()
-            prev_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank - 1).first()
+            prev_song = Song.query.filter(
+                Song.playlist == song.playlist,
+                Song.rank == song.rank - 1).first()
             if not prev_song:
                 break
     db.session.commit()
 
+
 def change_ordering_downvote(song_uri):
     song = Song.query.filter(Song.uri == song_uri).first()
     print "downvote song at rank: " + str(song.rank)
-    next_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank + 1).first()
+    next_song = Song.query.filter(
+        Song.playlist == song.playlist,
+        Song.rank == song.rank + 1).first()
     if next_song:
         while (song.num_votes < next_song.num_votes):
             print str(song.rank) + "-->" + str(next_song.rank)
             print "uri: " + str(song.playlist)
-            curr_playlist = Playlist.query.filter(Playlist.uri == session['playlist']).first()
-            sp.user_playlist_reorder_tracks(username, song.playlist, song.rank, next_song.rank+1)
+            curr_playlist = Playlist.query.filter(
+                Playlist.uri == session['playlist']).first()
+            sp.user_playlist_reorder_tracks(
+                username, song.playlist, song.rank, next_song.rank + 1)
             song.rank += 1
             next_song.rank -= 1
             db.session.commit()
-            next_song = Song.query.filter(Song.playlist == song.playlist, Song.rank == song.rank + 1).first()
+            next_song = Song.query.filter(
+                Song.playlist == song.playlist,
+                Song.rank == song.rank + 1).first()
             if not next_song:
                 break
     db.session.commit()
+
 
 def vote(song_uri, user_id, upvote):
     user_vote = Voted(song_uri, user_id, upvote)
     db.session.add(user_vote)
     db.session.commit()
 
+
 def upvote(song_uri):
     if not is_logged_in():
         return redirect(url_for('login'))
     user = User.query.filter(User.username == session['username']).first()
     if Voted.query.filter(Voted.user == user.id, Voted.song == song_uri,
-                          Voted.upvote == True).all():
+                          Voted.upvote).all():
         print "can't upvote a song twice"
         return
     if Voted.query.filter(Voted.user == user.id, Voted.song == song_uri).all():
         print "changing vote from down to up"
-        user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_uri).first()
+        user_vote = Voted.query.filter(
+            Voted.user == user.id,
+            Voted.song == song_uri).first()
         user_vote.upvote = True
 
         song = Song.query.filter(Song.uri == song_uri).first()
@@ -171,6 +198,7 @@ def upvote(song_uri):
         song.upvote()
         change_ordering_upvote(song_uri)
 
+
 def downvote(song_uri):
     if not is_logged_in():
         return redirect(url_for('login'))
@@ -182,7 +210,9 @@ def downvote(song_uri):
 
     if Voted.query.filter(Voted.user == user.id, Voted.song == song_uri).all():
         print "changing vote from up to down"
-        user_vote = Voted.query.filter(Voted.user == user.id, Voted.song == song_uri).first()
+        user_vote = Voted.query.filter(
+            Voted.user == user.id,
+            Voted.song == song_uri).first()
         user_vote.upvote = False
 
         song = Song.query.filter(Song.uri == song_uri).first()
@@ -199,6 +229,8 @@ def downvote(song_uri):
         change_ordering_downvote(song_uri)
 
 # ------------- Views ----------------------------
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if is_logged_in():
@@ -213,6 +245,7 @@ def register():
         return redirect(url_for('index'))
     return render_template('register.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if is_logged_in():
@@ -225,6 +258,7 @@ def login():
             return redirect(url_for('login'))
     return render_template('login.html')
 
+
 @app.route('/logout')
 def logout():
     # remove the username from the session if it's there
@@ -233,6 +267,7 @@ def logout():
 
 # set the secret key.  keep this really secret:
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+
 
 @app.route('/')
 @app.route('/index')
@@ -248,73 +283,79 @@ def index():
                            playlists=playlists,
                            username=session['username'])
 
+
 @app.route('/', methods=['POST'])
 def my_form_post():
-  # add to party
-  if 'addbutton' in request.form:
-    if request.form['addbutton'] == 'Add to Party':
-      track_ids = [request.form['uri'][14:]]
-      sp.user_playlist_add_tracks(username, session['playlist'], track_ids)
-      playlist = sp.user_playlist_tracks(username, session['playlist'])
-      song = Song(track_ids[0], session['playlist'])
-      db.session.add(song)
-      db.session.commit()
-      q_tracks = []
-      for track in playlist['items']:
-        q_tracks.append(track['track'])
-      return results("", q_tracks)
-  # search for songs
-  elif 'my-form' in request.form:
-    playlist = sp.user_playlist_tracks(username, session['playlist'])
-    q_tracks = []
-    for track in playlist['items']:
-        song = Song.query.filter(Song.uri == track['track']['uri'][14:]).first()
-        print 'rank: ' + str(song.rank) + ' num_votes: ' + str(song.num_votes)
-        q_tracks.append(track['track'])
-    text = request.form['text']
-    processed_text = text.lower()
-    return results(processed_text, q_tracks)
-  # upvote
-  elif 'up' in request.form:
-    print 'upvote'
-    playlist = sp.user_playlist_tracks(username, session['playlist'])
-    q_tracks = []
-    upvote(request.form['uri'][14:])
-    for track in playlist['items']:
-      q_tracks.append(track['track'])
-    return results("", q_tracks)
-  # downvote
-  elif 'down' in request.form:
-    print 'downvote'
-    playlist = sp.user_playlist_tracks(username, session['playlist'])
-    q_tracks = []
-    downvote(request.form['uri'][14:])
-    for track in playlist['items']:
-      q_tracks.append(track['track'])
-    return results("", q_tracks)
-  # create new playlist
-  elif 'new-playlist' in request.form:
-    text = request.form['text']
-    processed_text = text
-    sp.user_playlist_create(username, processed_text)
-    playlist_uri = sp.user_playlists(username)['items'][0]['uri'][32:]
-    playlist = Playlist(processed_text, playlist_uri)
-    db.session.add(playlist)
-    db.session.commit()
-    session['playlist'] = playlist_uri
-    return results("", [])
-  # join a playlist from homepage
-  else:
-    session['playlist'] = request.form['uri']
-    playlist = sp.user_playlist_tracks(username, session['playlist'])
-    q_tracks = []
-    for track in playlist['items']:
-      q_tracks.append(track['track'])
-      if not Song.query.filter(Song.uri == track['track']['uri'][14:]).all():
-        song = Song(track['track']['uri'][14:], session['playlist'])
-        db.session.add(song)
+    # add to party
+    if 'addbutton' in request.form:
+        if request.form['addbutton'] == 'Add to Party':
+            track_ids = [request.form['uri'][14:]]
+            sp.user_playlist_add_tracks(
+                username, session['playlist'], track_ids)
+            playlist = sp.user_playlist_tracks(username, session['playlist'])
+            song = Song(track_ids[0], session['playlist'])
+            db.session.add(song)
+            db.session.commit()
+            q_tracks = []
+            for track in playlist['items']:
+                q_tracks.append(track['track'])
+            return results("", q_tracks)
+    # search for songs
+    elif 'my-form' in request.form:
+        playlist = sp.user_playlist_tracks(username, session['playlist'])
+        q_tracks = []
+        for track in playlist['items']:
+            song = Song.query.filter(
+                Song.uri == track['track']['uri'][
+                    14:]).first()
+            print 'rank: ' + str(song.rank) + ' num_votes: ' + str(song.num_votes)
+            q_tracks.append(track['track'])
+        text = request.form['text']
+        processed_text = text.lower()
+        return results(processed_text, q_tracks)
+    # upvote
+    elif 'up' in request.form:
+        print 'upvote'
+        playlist = sp.user_playlist_tracks(username, session['playlist'])
+        q_tracks = []
+        upvote(request.form['uri'][14:])
+        for track in playlist['items']:
+            q_tracks.append(track['track'])
+        return results("", q_tracks)
+    # downvote
+    elif 'down' in request.form:
+        print 'downvote'
+        playlist = sp.user_playlist_tracks(username, session['playlist'])
+        q_tracks = []
+        downvote(request.form['uri'][14:])
+        for track in playlist['items']:
+            q_tracks.append(track['track'])
+        return results("", q_tracks)
+    # create new playlist
+    elif 'new-playlist' in request.form:
+        text = request.form['text']
+        processed_text = text
+        sp.user_playlist_create(username, processed_text)
+        playlist_uri = sp.user_playlists(username)['items'][0]['uri'][32:]
+        playlist = Playlist(processed_text, playlist_uri)
+        db.session.add(playlist)
         db.session.commit()
-    return results("", q_tracks)
+        session['playlist'] = playlist_uri
+        return results("", [])
+    # join a playlist from homepage
+    else:
+        session['playlist'] = request.form['uri']
+        playlist = sp.user_playlist_tracks(username, session['playlist'])
+        q_tracks = []
+        for track in playlist['items']:
+            q_tracks.append(track['track'])
+            if not Song.query.filter(
+                Song.uri == track['track']['uri'][
+                    14:]).all():
+                song = Song(track['track']['uri'][14:], session['playlist'])
+                db.session.add(song)
+                db.session.commit()
+        return results("", q_tracks)
 
 
 @app.route('/results')
@@ -327,31 +368,31 @@ def results(search, q_tracks):
     upper = len(items) if len(items) < 10 else 10
     tracks = []
     if not search == "":
-      for i in range(upper):
-          track = items[i]
-          tracks.append(track)
+        for i in range(upper):
+            track = items[i]
+            tracks.append(track)
     return render_template("results.html",
-                          title='Home',
-                          tracks=tracks,
-                          q_tracks=q_tracks,
-                          username=session['username'],
-                          playlist=session['playlist'])
+                           title='Home',
+                           tracks=tracks,
+                           q_tracks=q_tracks,
+                           username=session['username'],
+                           playlist=session['playlist'])
 
 
 @app.route('/', methods=['POST'])
 def new_playlist(playlist_name, playlist_uri):
-  if playlist_uri not in Playlist.query.all():
-    current_user = 'pia'
-    sp.user_playlist_create(current_user, playlist_name)
-    print sp.user_playlists(username)[0]
-    playlist = Playlist(playlist_name, playlist_uri)
-    db.session.add(playlist)
-    db.session.commit()
-  
+    if playlist_uri not in Playlist.query.all():
+        current_user = 'pia'
+        sp.user_playlist_create(current_user, playlist_name)
+        print sp.user_playlists(username)[0]
+        playlist = Playlist(playlist_name, playlist_uri)
+        db.session.add(playlist)
+        db.session.commit()
+
 
 def initialize_db():
-  db.create_all()
-  # new_playlist('TEST', '2b0pwZQzfNQBTufDZA86Az')
+    db.create_all()
+    # new_playlist('TEST', '2b0pwZQzfNQBTufDZA86Az')
 
 if __name__ == '__main__':
     initialize_db()
