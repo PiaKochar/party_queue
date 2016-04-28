@@ -20,8 +20,9 @@ p 				      { padding-left: 10px; color: white; display:block;}
 				          font-family: 'Montserrat' ; 
 				          cursor:pointer;
                   width: 60;
-                  height: 30;
-                  border: none;}                  
+                  height: 30;;
+                  border: none;} 
+.pad            { padding:10px; }                 
 .greenbutton    { background-color: 1ed760;
                   -webkit-border-radius: 30px; 
                   -moz-border-radius: 30px; 
@@ -29,6 +30,15 @@ p 				      { padding-left: 10px; color: white; display:block;}
                   font-family: 'Montserrat' ; 
                   cursor:pointer;
                   width: 60;
+                  height: 30;
+                  border: none;}
+.greenbutton-2  { background-color: 1ed760;
+                  -webkit-border-radius: 30px; 
+                  -moz-border-radius: 30px; 
+                  color: black;
+                  font-family: 'Montserrat' ; 
+                  cursor:pointer;
+                  width: 120;
                   height: 30;
                   border: none;}
 .addbutton      { float:left;
